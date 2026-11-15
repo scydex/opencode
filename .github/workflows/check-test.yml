@@ -6,6 +6,7 @@ name: check-test
 on:
   push:
     branches:
+      - durative-ci
       - dev
       - beta
   pull_request:
@@ -51,7 +52,7 @@ jobs:
   affected:
     name: affected packages
     if: ${{ !github.event.pull_request.draft && github.event_name != 'pull_request' }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: durative
     outputs:
       e2e: ${{ steps.packages.outputs.app }}
     steps:
@@ -84,7 +85,7 @@ jobs:
       fail-fast: false
       matrix:
         # Pull requests run Linux only; Windows runs the same tests on pushes, nightly runs and the release gate.
-        settings: ${{ fromJSON(github.event_name == 'pull_request' && '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"}]' || '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"},{"name":"windows","host":"blacksmith-4vcpu-windows-2025"}]') }}
+        settings: ${{ fromJSON(github.event_name == 'pull_request' && '[{"name":"linux","host":"durative"}]' || '[{"name":"linux","host":"durative"}]') }}
     runs-on: ${{ matrix.settings.host }}
     defaults:
       run:
@@ -164,9 +165,7 @@ jobs:
       matrix:
         settings:
           - name: linux
-            host: blacksmith-4vcpu-ubuntu-2404
-          - name: windows
-            host: blacksmith-4vcpu-windows-2025
+            host: durative
     runs-on: ${{ matrix.settings.host }}
     defaults:
       run:
@@ -230,7 +229,7 @@ jobs:
       matrix:
         # The release gate runs the Linux browser suites only: the Windows legs still fail on dev pushes often
         # enough that a stable release must not wait for them. Pushes and nightly runs cover Windows.
-        settings: ${{ fromJSON(inputs.release_gate && '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"}]' || '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"},{"name":"windows","host":"blacksmith-4vcpu-windows-2025"}]') }}
+        settings: ${{ fromJSON(inputs.release_gate && '[{"name":"linux","host":"durative"}]' || '[{"name":"linux","host":"durative"}]') }}
         quarantine: ${{ fromJSON(inputs.quarantine && '[true]' || '[false]') }}
         # Playwright splits whole spec files across shards by test count, not duration. Every app-N
         # entry must use the same total, and the entries must cover 1..total. The service worker suite
@@ -341,9 +340,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, windows]
+        os: [linux]
     # Aggregates results only; these do not need a paid runner.
-    runs-on: ubuntu-24.04
+    runs-on: durative
     steps:
       - name: Check browser test results
         env:
