@@ -7,3 +7,5 @@ const reason = new DOMException("signal is aborted without reason", "AbortError"
 export function abort(controller: AbortController | undefined) {
   controller?.abort(reason)
 }
+
+// Durative retest: incremental leaf input, 2026-11-16.
